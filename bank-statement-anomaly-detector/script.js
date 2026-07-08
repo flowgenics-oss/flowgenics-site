@@ -7,7 +7,7 @@
   'use strict';
 
   // -------------------------------------------------------
-  // CONFIG — Replace with your actual n8n webhook URL
+  // CONFIG
   // -------------------------------------------------------
   const WEBHOOK_URL = 'https://n8n.flowgenicsent.com/webhook/bank-statement-anomaly-detector';
 

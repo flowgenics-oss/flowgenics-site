@@ -2,8 +2,22 @@
    FLOWGENICS DESIGN SYSTEM — Bank Statement Anomaly Detector
    ============================================================ */
 
-/* --- Google Fonts (Inter as fallback for Neue Montreal) --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+/* --- Custom Brand Font: Neue Montreal --- */
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('assets/fonts/NeueMontreal-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('assets/fonts/NeueMontreal-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* --- Design Tokens --- */
 :root {
@@ -51,7 +65,7 @@
   --color-success-tint: #DFEDE6;
 
   /* Typography — swap to Neue Montreal by adding @font-face and changing this var */
-  --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-primary: 'Neue Montreal', 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Spacing (8px base) */
   --space-1: 8px;
@@ -118,7 +132,8 @@ a {
   text-decoration: none;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
@@ -167,7 +182,7 @@ ul, ol {
 }
 
 .header__logo {
-  height: 28px;
+  height: 40px;
   width: auto;
 }
 
@@ -190,7 +205,7 @@ ul, ol {
 }
 
 .footer__logo {
-  height: 24px;
+  height: 40px;
   width: auto;
 }
 
@@ -495,7 +510,8 @@ ul, ol {
   color: var(--color-accent-support);
   font-weight: 500;
   margin-right: 4px;
-  opacity: 1; /* override the parent opacity */
+  opacity: 1;
+  /* override the parent opacity */
 }
 
 /* ============================================================
@@ -897,7 +913,7 @@ ul, ol {
 }
 
 .results-card__logo {
-  height: 24px;
+  height: 40px;
   width: auto;
   margin-bottom: var(--space-4);
 }
@@ -1110,6 +1126,7 @@ ul, ol {
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(350%);
   }
@@ -1126,6 +1143,7 @@ ul, ol {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1258,6 +1276,7 @@ ul, ol {
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
