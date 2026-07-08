@@ -9,7 +9,7 @@
   // -------------------------------------------------------
   // CONFIG — Replace with your actual n8n webhook URL
   // -------------------------------------------------------
-  const WEBHOOK_URL = 'https://YOUR_N8N_WEBHOOK_URL_HERE';
+  const WEBHOOK_URL = 'https://n8n.flowgenicsent.com/webhook/bank-statement-anomaly-detector';
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
   const ALLOWED_TYPES = [
