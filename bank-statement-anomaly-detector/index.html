@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Statement Anomaly Detector — Flowgenics</title>
+  <meta name="description"
+    content="Upload a client's bank statement — PDF, CSV, or XLSX — and get a professional risk report in under 60 seconds. 10 risk categories, checked automatically.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Bank Statement Anomaly Detector — Flowgenics">
+  <meta property="og:description"
+    content="Upload a client's bank statement and get a professional risk report in under 60 seconds. 10 risk categories, checked automatically.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://flowgenicsent.com/bank-statement-anomaly-detector">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Bank Statement Anomaly Detector",
+    "url": "https://flowgenicsent.com/bank-statement-anomaly-detector",
+    "description": "Upload a client's bank statement and get a professional risk report in under 60 seconds. 10 risk categories, checked automatically.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "MYR"
+    },
+    "creator": {
+      "@type": "Organization",
+      "name": "Flowgenics",
+      "url": "https://flowgenicsent.com"
+    }
+  }
+  </script>
+</head>
+
+<body>
+
+  <!-- ====================================================
+       VIEW: MAIN
+       ==================================================== -->
+  <div data-view="main" class="view view--active" id="view-main">
+
+    <!-- Header (on Onyx hero) -->
+    <header class="header header--on-dark">
+      <div class="container">
+        <img src="assets/logo-white.svg" alt="Flowgenics" class="header__logo" width="160" height="36">
+      </div>
+    </header>
+
+    <main class="view__main">
+
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="container hero__inner">
+
+          <!-- Left: Hero Content -->
+          <div class="hero__content">
+            <div class="hero__eyebrow">
+              <span class="eyebrow eyebrow--on-dark">Analysis Tool For Accounting &amp; Audit Firms</span>
+            </div>
+            <h1 class="hero__title">Detect anomalies in bank statements — avoid costly mistakes</h1>
+            <p class="hero__subtitle">Upload a client's bank statement — PDF, CSV, or XLSX — and get a professional risk
+              report in under 60 seconds. No software to install. No data stored.</p>
+
+            <p class="hero__categories-label">10 risk categories, checked automatically</p>
+
+            <div class="risk-tiles" role="list">
+              <span class="risk-tile" role="listitem">Duplicate transactions</span>
+              <span class="risk-tile" role="listitem">Round number patterns</span>
+              <span class="risk-tile" role="listitem">Structuring indicators</span>
+              <span class="risk-tile" role="listitem">Weekend activity</span>
+              <span class="risk-tile" role="listitem">Rapid sequential transfers</span>
+              <span class="risk-tile" role="listitem">Statistical outliers</span>
+              <span class="risk-tile" role="listitem">Vague high-value entries</span>
+              <span class="risk-tile" role="listitem">Balance discrepancies</span>
+              <span class="risk-tile" role="listitem">Dormancy spikes</span>
+              <span class="risk-tile" role="listitem">Reference sequence gaps</span>
+            </div>
+
+            <div class="hero__divider"></div>
+
+            <div class="trust-lines">
+              <span class="trust-line"><span class="trust-check" aria-hidden="true">✓</span> Works with all bank
+                statements</span>
+              <span class="trust-line"><span class="trust-check" aria-hidden="true">✓</span> PDF, CSV and XLSX supported
+                — up to 5 MB</span>
+              <span class="trust-line"><span class="trust-check" aria-hidden="true">✓</span> Processed in real time —
+                your data is never stored</span>
+            </div>
+          </div>
+
+          <!-- Right: Form Card -->
+          <div class="hero__form-wrapper">
+            <div class="form-card">
+              <h2 class="form-card__title">Analyse Your Bank Statement</h2>
+              <p class="form-card__subtitle">Identify the risks hidden in bank statement</p>
+
+              <form id="analysis-form" novalidate>
+                <div class="form-card__fields">
+
+                  <!-- Name -->
+                  <div class="form-group">
+                    <label for="field-name" class="form-label">Name</label>
+                    <input type="text" id="field-name" name="name" class="form-input" placeholder="Full name" required
+                      autocomplete="name">
+                    <span class="form-error" id="error-name">Please enter your name</span>
+                  </div>
+
+                  <!-- Email -->
+                  <div class="form-group">
+                    <label for="field-email" class="form-label">Email</label>
+                    <input type="email" id="field-email" name="email" class="form-input" placeholder="you@company.com"
+                      required autocomplete="email">
+                    <span class="form-error" id="error-email">Please enter a valid email address</span>
+                  </div>
+
+                  <!-- Company Name -->
+                  <div class="form-group">
+                    <label for="field-company" class="form-label">Company Name</label>
+                    <input type="text" id="field-company" name="company" class="form-input"
+                      placeholder="Your firm or company" required autocomplete="organization">
+                    <span class="form-error" id="error-company">Please enter your company name</span>
+                  </div>
+
+                  <!-- File Upload -->
+                  <div class="form-group">
+                    <label class="form-label">Bank Statement</label>
+
+                    <div class="dropzone" id="dropzone">
+                      <input type="file" class="dropzone__input" id="field-file" name="file" accept=".pdf,.csv,.xlsx"
+                        aria-label="Upload bank statement">
+
+                      <!-- Default state -->
+                      <div class="dropzone__default" id="dropzone-default">
+                        <svg class="dropzone__icon" viewBox="0 0 32 32" fill="none" stroke="currentColor"
+                          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M16 20V8M16 8L11 13M16 8L21 13" />
+                          <path d="M6 22v2a2 2 0 002 2h16a2 2 0 002-2v-2" />
+                        </svg>
+                        <p class="dropzone__text">Drag and drop or <strong>browse</strong></p>
+                        <p class="dropzone__hint">PDF, CSV or XLSX — up to 5 MB</p>
+                      </div>
+
+                      <!-- File selected state -->
+                      <div class="dropzone__preview" id="dropzone-preview">
+                        <span class="dropzone__filename" id="dropzone-filename"></span>
+                        <span class="dropzone__filesize" id="dropzone-filesize"></span>
+                        <button type="button" class="dropzone__remove" id="dropzone-remove" aria-label="Remove file">
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+                            <line x1="4" y1="4" x2="12" y2="12" />
+                            <line x1="12" y1="4" x2="4" y2="12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <span class="form-error" id="error-file">Please upload a PDF, CSV, or XLSX file (max 5 MB)</span>
+                  </div>
+
+                </div>
+
+                <button type="submit" class="btn btn--primary btn--full btn--large form-card__submit" id="submit-btn">
+                  <span class="btn__spinner" aria-hidden="true"></span>
+                  <span class="btn__label">Analyse Statement</span>
+                </button>
+              </form>
+
+              <p class="form-card__disclaimer"><span class="trust-check trust-check--muted" aria-hidden="true">🔒</span>
+                Processed in real time. Your file is never stored or shared.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- "Under the Hood" Section -->
+      <section class="methodology">
+        <div class="container">
+          <div class="methodology__eyebrow">
+            <span class="eyebrow eyebrow--on-light">Under the hood</span>
+          </div>
+          <h2 class="methodology__title">10 risk categories, checked in seconds</h2>
+          <p class="methodology__subtitle">The same checks you take overtime to do manually — now automated.</p>
+
+          <div class="methodology__grid">
+
+            <div class="methodology__card">
+              <span class="methodology__number">01</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Duplicate transactions</p>
+                <p class="methodology__card-desc">Same amount and description appearing within a 7-day window — a common
+                  indicator of accidental double-posting or deliberate manipulation.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">02</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Round number patterns</p>
+                <p class="methodology__card-desc">Exact multiples of RM500, RM1,000, RM5,000 or RM10,000 — particularly
+                  large debits, which rarely occur naturally in clean business accounts.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">03</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Structuring indicators</p>
+                <p class="methodology__card-desc">Transactions clustered just below RM10,000 may indicate deliberate
+                  layering to stay below detection or reporting thresholds.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">04</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Weekend activity</p>
+                <p class="methodology__card-desc">Transactions on Saturdays or Sundays are unusual for Malaysian SME
+                  businesses and often warrant a closer look.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">05</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Rapid sequential transfers</p>
+                <p class="methodology__card-desc">Three or more transfers to the same counterparty within a 48-hour
+                  window — a pattern associated with fund layering.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">06</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Statistical outliers</p>
+                <p class="methodology__card-desc">Any single transaction more than 3× the median value for the account —
+                  an amount well outside the normal operating range.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">07</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Vague high-value entries</p>
+                <p class="methodology__card-desc">Transactions above RM5,000 described only as CASH, TRANSFER, MISC or
+                  SUNDRY, with no counterparty or reference detail.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">08</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Balance discrepancies</p>
+                <p class="methodology__card-desc">Where the running balance between rows does not reconcile with the
+                  debit or credit shown — a potential sign of altered records.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">09</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Dormancy spikes</p>
+                <p class="methodology__card-desc">Seven or more days with no activity followed by sudden high-value
+                  transactions — accounts activated for specific, targeted purposes.</p>
+              </div>
+            </div>
+
+            <div class="methodology__card">
+              <span class="methodology__number">10</span>
+              <div class="methodology__card-body">
+                <p class="methodology__card-name">Reference sequence gaps</p>
+                <p class="methodology__card-desc">Where cheque or reference numbers suggest a sequence, missing numbers
+                  in that sequence may indicate destroyed or altered instruments.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <img src="assets/logo-white.svg" alt="Flowgenics" class="footer__logo" width="120" height="28">
+            <span class="footer__divider"></span>
+            <span class="footer__tagline">Build Systems That Scale</span>
+          </div>
+          <p class="footer__disclaimer">This tool is for informational purposes only and does not constitute legal,
+            forensic, or audit advice. All findings should be verified through your firm's standard audit procedures.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ====================================================
+       VIEW: LOADING
+       ==================================================== -->
+  <div data-view="loading" class="view" id="view-loading">
+
+    <header class="header header--on-dark">
+      <div class="container">
+        <img src="assets/logo-white.svg" alt="Flowgenics" class="header__logo" width="160" height="36">
+      </div>
+    </header>
+
+    <main class="view__main loading-view">
+      <h1 class="loading-view__title">Your statement is being analysed</h1>
+      <p class="loading-view__subtitle">This usually takes under 60 seconds</p>
+      <div class="progress-track" role="progressbar" aria-label="Analysing">
+        <div class="progress-bar"></div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <img src="assets/logo-white.svg" alt="Flowgenics" class="footer__logo" width="120" height="28">
+            <span class="footer__divider"></span>
+            <span class="footer__tagline">Build Systems That Scale</span>
+          </div>
+          <p class="footer__disclaimer">This tool is for informational purposes only and does not constitute legal,
+            forensic, or audit advice. All findings should be verified through your firm's standard audit procedures.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ====================================================
+       VIEW: UNSUPPORTED FORMAT
+       ==================================================== -->
+  <div data-view="unsupported" class="view" id="view-unsupported">
+
+    <header class="header header--on-light">
+      <div class="container">
+        <img src="assets/logo-dark.svg" alt="Flowgenics" class="header__logo" width="160" height="36">
+      </div>
+    </header>
+
+    <main class="view__main utility-view">
+      <!-- Crossed-lines glyph -->
+      <svg class="utility-view__glyph utility-view__glyph--unsupported" viewBox="0 0 56 56" fill="none"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+        <circle cx="28" cy="28" r="24" />
+        <line x1="18" y1="18" x2="38" y2="38" />
+        <line x1="38" y1="18" x2="18" y2="38" />
+      </svg>
+      <h1 class="utility-view__title">Your document format is not supported</h1>
+      <p class="utility-view__text">Please make sure you have uploaded .pdf, .csv or .xlsx files only.</p>
+      <button class="btn btn--return" data-navigate="main" type="button">Try Again&ensp;→</button>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <img src="assets/logo-white.svg" alt="Flowgenics" class="footer__logo" width="120" height="28">
+            <span class="footer__divider"></span>
+            <span class="footer__tagline">Build Systems That Scale</span>
+          </div>
+          <p class="footer__disclaimer">This tool is for informational purposes only and does not constitute legal,
+            forensic, or audit advice. All findings should be verified through your firm's standard audit procedures.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ====================================================
+       VIEW: ERROR OCCURRED
+       ==================================================== -->
+  <div data-view="error" class="view" id="view-error">
+
+    <header class="header header--on-light">
+      <div class="container">
+        <img src="assets/logo-dark.svg" alt="Flowgenics" class="header__logo" width="160" height="36">
+      </div>
+    </header>
+
+    <main class="view__main utility-view">
+      <!-- Circled exclamation glyph -->
+      <svg class="utility-view__glyph utility-view__glyph--error" viewBox="0 0 56 56" fill="none" stroke="currentColor"
+        stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+        <circle cx="28" cy="28" r="24" />
+        <line x1="28" y1="18" x2="28" y2="32" />
+        <circle cx="28" cy="38" r="1.5" fill="currentColor" stroke="none" />
+      </svg>
+      <h1 class="utility-view__title">An error has occurred</h1>
+      <p class="utility-view__text">Please try again later.</p>
+      <button class="btn btn--return" data-navigate="main" type="button">Return to Start&ensp;→</button>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <img src="assets/logo-white.svg" alt="Flowgenics" class="footer__logo" width="120" height="28">
+            <span class="footer__divider"></span>
+            <span class="footer__tagline">Build Systems That Scale</span>
+          </div>
+          <p class="footer__disclaimer">This tool is for informational purposes only and does not constitute legal,
+            forensic, or audit advice. All findings should be verified through your firm's standard audit procedures.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ====================================================
+       VIEW: NO TRANSACTIONS
+       ==================================================== -->
+  <div data-view="no_transactions" class="view" id="view-no-transactions">
+
+    <header class="header header--on-light">
+      <div class="container">
+        <img src="assets/logo-dark.svg" alt="Flowgenics" class="header__logo" width="160" height="36">
+      </div>
+    </header>
+
+    <main class="view__main utility-view">
+      <!-- Empty-state glyph (document with slash) -->
+      <svg class="utility-view__glyph utility-view__glyph--empty" viewBox="0 0 56 56" fill="none" stroke="currentColor"
+        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 8h14l10 10v28a2 2 0 01-2 2H18a2 2 0 01-2-2V10a2 2 0 012-2z" />
+        <path d="M32 8v10h10" />
+        <line x1="22" y1="28" x2="34" y2="28" opacity="0.4" />
+        <line x1="22" y1="34" x2="30" y2="34" opacity="0.4" />
+        <line x1="14" y1="50" x2="42" y2="14" stroke-width="2" opacity="0.3" />
+      </svg>
+      <h1 class="utility-view__title">Your statement contains no transactions</h1>
+      <p class="utility-view__text">Please upload statements with transactions for analysis.</p>
+      <button class="btn btn--return" data-navigate="main" type="button">Upload New Documents&ensp;→</button>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <img src="assets/logo-white.svg" alt="Flowgenics" class="footer__logo" width="120" height="28">
+            <span class="footer__divider"></span>
+            <span class="footer__tagline">Build Systems That Scale</span>
+          </div>
+          <p class="footer__disclaimer">This tool is for informational purposes only and does not constitute legal,
+            forensic, or audit advice. All findings should be verified through your firm's standard audit procedures.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ====================================================
+       VIEW: RESULTS
+       ==================================================== -->
+  <div data-view="results" class="view" id="view-results">
+
+    <header class="header header--on-light">
+      <div class="container">
+        <img src="assets/logo-dark.svg" alt="Flowgenics" class="header__logo" width="160" height="36">
+      </div>
+    </header>
+
+    <main class="view__main results-view">
+      <div class="results-card">
+        <img src="assets/logo-dark.svg" alt="Flowgenics" class="results-card__logo" width="120" height="28">
+
+        <!-- Header -->
+        <div class="results-header">
+          <div class="results-header__top">
+            <div>
+              <h1 class="results-header__title" id="results-title"></h1>
+              <p class="results-header__subtitle" id="results-subtitle"></p>
+            </div>
+            <span class="risk-badge" id="results-risk-badge"></span>
+          </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="results-stats" id="results-stats">
+          <div class="results-stat">
+            <span class="results-stat__value" id="results-total">—</span>
+            <span class="results-stat__label">Total transactions reviewed</span>
+          </div>
+          <div class="results-stat" id="results-flagged-stat">
+            <span class="results-stat__value" id="results-flagged">—</span>
+            <span class="results-stat__label">Flagged transactions</span>
+          </div>
+        </div>
+
+        <!-- Key Insights (dynamic) -->
+        <div class="results-insights" id="results-insights">
+          <p class="results-insights__title">Key insights</p>
+          <div class="results-insights__list" id="results-insights-list"></div>
+        </div>
+
+        <!-- Flags List (dynamic, shown when flagged) -->
+        <div class="results-flags" id="results-flags"></div>
+
+        <!-- Clean State (shown when no flags) -->
+        <div class="results-clean hidden" id="results-clean">
+          <svg class="results-clean__icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="24" cy="24" r="20" />
+            <polyline points="15,24 22,31 33,18" />
+          </svg>
+          <p class="results-clean__text">No anomalies were identified across any of the 10 risk categories checked.</p>
+        </div>
+
+        <!-- Email Notice -->
+        <div class="results-email-notice" id="results-email-notice">
+          <p class="results-email-notice__text" id="results-email-text"></p>
+        </div>
+
+        <!-- Action -->
+        <div class="results-card__action">
+          <button class="btn btn--primary btn--large" data-navigate="main" type="button">Analyse Another
+            Statement</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <img src="assets/logo-white.svg" alt="Flowgenics" class="footer__logo" width="120" height="28">
+            <span class="footer__divider"></span>
+            <span class="footer__tagline">Build Systems That Scale</span>
+          </div>
+          <p class="footer__disclaimer">This tool is for informational purposes only and does not constitute legal,
+            forensic, or audit advice. All findings should be verified through your firm's standard audit procedures.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

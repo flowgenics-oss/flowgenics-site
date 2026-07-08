@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 23 23" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g transform="matrix(1,0,0,1,-0.958333,-0.958333)">
+        <g transform="matrix(0.067404,0.001085,-0.001188,0.061591,-15.792297,-13.189371)">
+            <path d="M416.539,239.275L269.178,295.87" style="fill:none;stroke:#0a2472;stroke-width:32.31px;"/>
+        </g>
+        <g transform="matrix(-0.050871,-0.040422,0.044237,-0.046484,22.605087,29.959589)">
+            <path d="M416.539,239.275L269.178,295.87" style="fill:none;stroke:#0a2472;stroke-width:33.8px;"/>
+        </g>
+        <g transform="matrix(0.067415,0,0,0.061601,-21.425994,-11.818599)">
+            <path d="M347.491,278.315C352.638,419.578 402.76,510.246 499.03,548.997" style="fill:none;stroke:#0a2472;stroke-width:32.26px;"/>
+        </g>
+        <g transform="matrix(-0.064564,0,0,0.061601,44.435553,-11.818599)">
+            <path d="M347.491,278.315C352.638,419.578 402.76,510.246 499.03,548.997" style="fill:none;stroke:#0a2472;stroke-width:33.02px;"/>
+        </g>
+        <g transform="matrix(0.042766,0,0,0.029613,-16.754814,-10.143594)">
+            <path d="M755.586,736.797L755.586,820.005C755.586,842.967 742.677,861.609 726.777,861.609L617.978,861.609C602.078,861.609 589.169,842.967 589.169,820.005L589.169,736.797C589.169,713.835 602.078,695.193 617.978,695.193L726.777,695.193C742.677,695.193 755.586,713.835 755.586,736.797Z" style="fill:none;stroke:#0a2472;stroke-width:56.64px;"/>
+        </g>
+        <g transform="matrix(-0.025713,0,-0,-0.03308,26.916378,22.085871)">
+            <path d="M471.067,351.958C471.067,412.181 519.887,461.001 580.11,461.001C640.333,461.001 689.153,412.181 689.153,351.958C689.153,412.181 640.333,461.001 580.11,461.001C519.887,461.001 471.067,412.181 471.067,351.958Z" style="fill:none;stroke:#0a2472;stroke-width:70.32px;"/>
+        </g>
+    </g>
+</svg>
