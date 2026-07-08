@@ -61,8 +61,8 @@
   const resultsEmailNotice = document.getElementById('results-email-notice');
   const resultsEmailText = document.getElementById('results-email-text');
 
-  // Currently selected file (stored separately since we need drag-and-drop)
-  let selectedFile = null;
+  // Currently selected files (stored separately since we need drag-and-drop)
+  let selectedFiles = [];
 
   // -------------------------------------------------------
   // VIEW MANAGEMENT
@@ -96,7 +96,7 @@
 
   function resetForm() {
     form.reset();
-    selectedFile = null;
+    selectedFiles = [];
     clearAllErrors();
     showDropzoneDefault();
     submitBtn.classList.remove('btn--loading');
@@ -132,28 +132,37 @@
   dropzone.addEventListener('drop', function (e) {
     var files = e.dataTransfer.files;
     if (files.length > 0) {
-      handleFileSelect(files[0]);
+      handleFilesSelect(files);
     }
   });
 
   fieldFile.addEventListener('change', function () {
     if (fieldFile.files.length > 0) {
-      handleFileSelect(fieldFile.files[0]);
+      handleFilesSelect(fieldFile.files);
     }
   });
 
   dropzoneRemove.addEventListener('click', function (e) {
     e.stopPropagation();
-    selectedFile = null;
+    selectedFiles = [];
     fieldFile.value = '';
     showDropzoneDefault();
     clearError(fieldFile, errorFile);
   });
 
-  function handleFileSelect(file) {
-    selectedFile = file;
-    dropzoneFilename.textContent = file.name;
-    dropzoneFilesize.textContent = formatFileSize(file.size);
+  function handleFilesSelect(files) {
+    // Support older browsers by borrowing slice from Array.prototype
+    selectedFiles = Array.prototype.slice.call(files, 0, 5);
+    
+    if (selectedFiles.length === 1) {
+      dropzoneFilename.textContent = selectedFiles[0].name;
+      dropzoneFilesize.textContent = formatFileSize(selectedFiles[0].size);
+    } else {
+      dropzoneFilename.textContent = selectedFiles.length + ' files selected';
+      var totalSize = selectedFiles.reduce(function(acc, file) { return acc + file.size; }, 0);
+      dropzoneFilesize.textContent = formatFileSize(totalSize);
+    }
+    
     showDropzonePreview();
     clearError(fieldFile, errorFile);
   }
@@ -209,23 +218,32 @@
     }
 
     // File
-    if (!selectedFile) {
-      showError(fieldFile, errorFile);
-      dropzone.classList.add('dropzone--error');
-      valid = false;
-    } else if (!isFileAllowed(selectedFile)) {
-      errorFile.textContent = 'Unsupported format. Please upload a PDF, CSV, or XLSX file.';
-      showError(fieldFile, errorFile);
-      dropzone.classList.add('dropzone--error');
-      valid = false;
-    } else if (selectedFile.size > MAX_FILE_SIZE) {
-      errorFile.textContent = 'File exceeds 5 MB. Please upload a smaller file.';
+    if (selectedFiles.length === 0) {
       showError(fieldFile, errorFile);
       dropzone.classList.add('dropzone--error');
       valid = false;
     } else {
-      clearError(fieldFile, errorFile);
-      dropzone.classList.remove('dropzone--error');
+      var allAllowed = true;
+      var allUnderSize = true;
+      for (var i = 0; i < selectedFiles.length; i++) {
+        if (!isFileAllowed(selectedFiles[i])) allAllowed = false;
+        if (selectedFiles[i].size > MAX_FILE_SIZE) allUnderSize = false;
+      }
+      
+      if (!allAllowed) {
+        errorFile.textContent = 'Unsupported format. Please upload PDF, CSV, or XLSX files only.';
+        showError(fieldFile, errorFile);
+        dropzone.classList.add('dropzone--error');
+        valid = false;
+      } else if (!allUnderSize) {
+        errorFile.textContent = 'One or more files exceed 5 MB. Please upload smaller files.';
+        showError(fieldFile, errorFile);
+        dropzone.classList.add('dropzone--error');
+        valid = false;
+      } else {
+        clearError(fieldFile, errorFile);
+        dropzone.classList.remove('dropzone--error');
+      }
     }
 
     return valid;
@@ -288,7 +306,9 @@
     formData.append('name', fieldName.value.trim());
     formData.append('email', fieldEmail.value.trim());
     formData.append('company', fieldCompany.value.trim());
-    formData.append('file', selectedFile);
+    selectedFiles.forEach(function(file) {
+      formData.append('file', file);
+    });
 
     // POST to n8n webhook
     fetch(WEBHOOK_URL, {
