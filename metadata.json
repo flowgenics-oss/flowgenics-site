@@ -1,6 +1,0 @@
-{
-  "name": "Flowgenics",
-  "description": "Premium landing page for Flowgenics - Build Systems That Scale. Helping growing businesses automate operations, reduce manual work, and scale with confidence.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
