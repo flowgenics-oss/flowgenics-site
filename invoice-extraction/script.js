@@ -332,12 +332,19 @@ function startExtractionProcess() {
     formData.append('file', file);
   });
 
+  // Abort controller with 5-minute timeout to allow n8n enough processing time
+  const controller = new AbortController();
+  const TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
   // Call Webhook
   fetch(WEBHOOK_URL, {
     method: 'POST',
-    body: formData
+    body: formData,
+    signal: controller.signal
   })
   .then(async response => {
+    clearTimeout(timeoutId);
     stopLoadingProgress();
     const contentType = response.headers.get('content-type');
     
@@ -371,12 +378,21 @@ function startExtractionProcess() {
     handleExtractionSuccess(responseData);
   })
   .catch(error => {
+    clearTimeout(timeoutId);
     stopLoadingProgress();
     console.error('Error during extraction request:', error);
-    displayError(
-      'Failed to connect to the extraction service.', 
-      `${error.message}\n\nPlease check your network connection and ensure the webhook URL is reachable.`
-    );
+
+    if (error.name === 'AbortError') {
+      displayError(
+        'Request timed out.',
+        'The extraction is taking longer than 5 minutes. This may happen with large or complex invoices.\n\nPlease try again with fewer files, or contact support if the issue persists.'
+      );
+    } else {
+      displayError(
+        'Failed to connect to the extraction service.', 
+        `${error.message}\n\nThis is likely a server timeout — the invoice processing took too long and the connection was closed.\n\nTry again with fewer or smaller files. If the problem persists, the server timeout may need to be increased.`
+      );
+    }
   });
 }
 
