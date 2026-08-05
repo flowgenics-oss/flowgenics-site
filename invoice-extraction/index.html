@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Field Extractor</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Google Fonts: Inter for clean typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">Invoice Field Extractor</h1>
+      <p class="app-subtitle">Upload your invoices in PDF, CSV, PNG, or JPG format to extract key fields and values automatically.</p>
+    </header>
+
+    <!-- Main View (Uploader) -->
+    <section id="view-main" class="view-section">
+      <div class="card">
+        <div id="drop-zone" class="drop-zone">
+          <input type="file" id="file-input" multiple accept=".pdf,.csv,.png,.jpg,.jpeg" class="file-input-hidden">
+          <div class="drop-zone-content">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <h3>Drag & Drop Invoices Here</h3>
+            <p class="drop-zone-or">or click to browse files</p>
+            <p class="drop-zone-limits">Supports PDF, CSV, PNG, JPG. Max 5 files, up to 5MB each.</p>
+          </div>
+        </div>
+
+        <div id="selected-files-container" class="selected-files-container hidden">
+          <h4 class="section-title">Selected Files (<span id="file-count">0</span>/5)</h4>
+          <div id="file-list" class="file-list">
+            <!-- Dynamically populated via JS -->
+          </div>
+          <div class="action-bar">
+            <button id="btn-clear" class="btn btn-secondary">Clear All</button>
+            <button id="btn-extract" class="btn btn-primary" disabled>
+              <span>Extract Fields</span>
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading View -->
+    <section id="view-loading" class="view-section hidden">
+      <div class="card card-center">
+        <div class="scanner-container">
+          <div class="scanner-document">
+            <div class="scanner-line"></div>
+            <!-- Mock Invoice Details Inside Scanner -->
+            <div class="scanner-doc-header"></div>
+            <div class="scanner-doc-body">
+              <div class="scanner-doc-line"></div>
+              <div class="scanner-doc-line short"></div>
+              <div class="scanner-doc-line"></div>
+            </div>
+          </div>
+        </div>
+        <h2 class="loading-title">Processing Invoices</h2>
+        <p id="loading-status" class="loading-status">Uploading files...</p>
+        <div class="timer-container">
+          Time elapsed: <span id="loading-timer">0.0s</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results View -->
+    <section id="view-results" class="view-section hidden">
+      <div class="results-layout">
+        
+        <!-- Sidebar Tabs for Multiple Files -->
+        <aside id="results-sidebar" class="results-sidebar">
+          <h3 class="sidebar-title">Processed Files</h3>
+          <div id="tabs-container" class="tabs-container">
+            <!-- Tabs added dynamically -->
+          </div>
+          <button id="btn-upload-more" class="btn btn-secondary btn-full">
+            <svg class="btn-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Upload More
+          </button>
+        </aside>
+
+        <!-- Main Display Content Area -->
+        <main class="results-content">
+          <div class="card card-results-header">
+            <div class="results-header-info">
+              <h2 id="result-filename">invoice.pdf</h2>
+              <span id="result-filesize" class="badge">124 KB</span>
+            </div>
+            <div class="results-actions">
+              <button id="btn-copy-json" class="btn btn-secondary btn-sm">Copy JSON</button>
+              <button id="btn-download-json" class="btn btn-secondary btn-sm">Download JSON</button>
+              <button id="btn-download-csv" class="btn btn-secondary btn-sm">Download CSV</button>
+            </div>
+          </div>
+
+          <!-- Extracted Fields Grid -->
+          <div class="results-grid-container">
+            <h3 class="section-title">Extracted Metadata</h3>
+            <div id="extracted-fields-grid" class="extracted-fields-grid">
+              <!-- Dynamically populated key-value pairs -->
+            </div>
+          </div>
+
+          <!-- Line Items Table -->
+          <div id="line-items-container" class="line-items-container hidden">
+            <h3 class="section-title">Line Items</h3>
+            <div class="table-responsive">
+              <table class="line-items-table">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th class="text-right">Quantity</th>
+                    <th class="text-right">Unit Price</th>
+                    <th class="text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="line-items-body">
+                  <!-- Dynamically populated rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Raw Data Inspector -->
+          <div class="raw-data-section">
+            <details>
+              <summary>View Raw Extracted JSON</summary>
+              <pre><code id="raw-json-output">{}</code></pre>
+            </details>
+          </div>
+        </main>
+
+      </div>
+    </section>
+
+    <!-- Error View -->
+    <section id="view-error" class="view-section hidden">
+      <div class="card card-center card-error">
+        <div class="error-icon-container">
+          <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <h2 class="error-title">Extraction Error</h2>
+        <p id="error-message" class="error-message">An error occurred while communicating with the extraction service.</p>
+        <p id="error-details" class="error-details"></p>
+        
+        <div class="action-bar center">
+          <button id="btn-error-back" class="btn btn-primary">Go Back & Adjust Files</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
