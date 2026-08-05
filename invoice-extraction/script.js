@@ -419,24 +419,33 @@ function displayError(message, details = '') {
 // 5. Success Payload Parsing & Rendering
 function handleExtractionSuccess(responseData) {
   // Normalize response data into an array of file results
-  // Sometimes n8n returns a single object, an array of objects, or wrapped in `{ json: ... }`
+  // Handles your n8n workflow format: [{ finishedSet: [ {invoice1}, {invoice2} ] }]
   let normalizedData = [];
 
   if (Array.isArray(responseData)) {
-    normalizedData = responseData.map(item => {
-      // If wrapped in n8n's standard json key
-      return item.json ? item.json : item;
+    responseData.forEach(item => {
+      const targetObj = item.json ? item.json : item;
+      if (targetObj && Array.isArray(targetObj.finishedSet)) {
+        normalizedData.push(...targetObj.finishedSet);
+      } else {
+        normalizedData.push(targetObj);
+      }
     });
   } else {
-    normalizedData = [responseData.json ? responseData.json : responseData];
+    const targetObj = responseData.json ? responseData.json : responseData;
+    if (targetObj && Array.isArray(targetObj.finishedSet)) {
+      normalizedData.push(...targetObj.finishedSet);
+    } else {
+      normalizedData = [targetObj];
+    }
   }
 
   // Correlate with selected files if possible, or create defaults
   AppState.extractedData = normalizedData.map((data, index) => {
     const fileRef = AppState.selectedFiles[index];
     return {
-      fileName: data.fileName || data.filename || (fileRef ? fileRef.name : `extracted_document_${index + 1}`),
-      fileSize: fileRef ? formatBytes(fileRef.size) : (data.fileSize ? data.fileSize : 'Unknown Size'),
+      fileName: data.fileName || data.filename || (fileRef ? fileRef.name : `extracted_invoice_${index + 1}`),
+      fileSize: fileRef ? formatBytes(fileRef.size) : (data.fileSize ? data.fileSize : '—'),
       rawData: data,
       parsedFields: extractKeyValues(data),
       lineItems: extractLineItems(data)
@@ -571,7 +580,7 @@ function renderActiveResult() {
 
       card.innerHTML = `
         <span class="field-label">${escapeHtml(labelText)}</span>
-        <span class="field-value ${isHighlighted ? 'highlight' : ''}">${escapeHtml(String(val !== null ? val : ''))}</span>
+        <span class="field-value ${isHighlighted ? 'highlight' : ''}">${escapeHtml(String(val !== null && val !== undefined ? val : '—'))}</span>
       `;
       grid.appendChild(card);
     });
