@@ -48,7 +48,11 @@ const elements = {
   
   errorMessage: document.getElementById('error-message'),
   errorDetails: document.getElementById('error-details'),
-  btnErrorBack: document.getElementById('btn-error-back')
+  btnErrorBack: document.getElementById('btn-error-back'),
+  
+  inputName: document.getElementById('input-name'),
+  inputCompany: document.getElementById('input-company'),
+  inputEmail: document.getElementById('input-email')
 };
 
 // Loading Screen messages rotator
@@ -71,7 +75,27 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDragAndDrop();
   setupFileSelection();
   setupActionButtons();
+  setupFormValidation();
 });
+
+function setupFormValidation() {
+  const inputs = [elements.inputName, elements.inputCompany, elements.inputEmail];
+  inputs.forEach(input => {
+    input.addEventListener('input', validateForm);
+  });
+}
+
+function validateForm() {
+  const fileCount = AppState.selectedFiles.length;
+  const name = elements.inputName.value.trim();
+  const company = elements.inputCompany.value.trim();
+  const email = elements.inputEmail.value.trim();
+  
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isFormValid = name.length > 0 && company.length > 0 && isEmailValid;
+  
+  elements.btnExtract.disabled = !(fileCount > 0 && isFormValid);
+}
 
 // View Navigation Utility
 function switchView(targetView) {
@@ -227,12 +251,11 @@ function updateFileListUI() {
 
   if (count === 0) {
     elements.selectedFilesContainer.classList.add('hidden');
-    elements.btnExtract.disabled = true;
-    return;
+  } else {
+    elements.selectedFilesContainer.classList.remove('hidden');
   }
 
-  elements.selectedFilesContainer.classList.remove('hidden');
-  elements.btnExtract.disabled = false;
+  validateForm();
 
   AppState.selectedFiles.forEach((file, index) => {
     const fileItem = document.createElement('div');
@@ -292,6 +315,12 @@ function startExtractionProcess() {
 
   // Prepare Multipart Data
   const formData = new FormData();
+  
+  // Append user metadata
+  formData.append('name', elements.inputName.value.trim());
+  formData.append('company', elements.inputCompany.value.trim());
+  formData.append('email', elements.inputEmail.value.trim());
+
   AppState.selectedFiles.forEach((file) => {
     // Append files under key 'file'
     formData.append('file', file);
