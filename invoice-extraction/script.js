@@ -142,13 +142,19 @@ function setupDragAndDrop() {
   });
 
   // Click to browse
-  dropZone.addEventListener('click', () => {
-    elements.fileInput.click();
+  dropZone.addEventListener('click', (e) => {
+    if (e.target !== elements.fileInput) {
+      elements.fileInput.click();
+    }
   });
 }
 
 // 2. File Selection Logic
 function setupFileSelection() {
+  elements.fileInput.addEventListener('click', e => {
+    e.stopPropagation();
+  });
+
   elements.fileInput.addEventListener('change', e => {
     const files = Array.from(e.target.files);
     handleFilesSelected(files);
