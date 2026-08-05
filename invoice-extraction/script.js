@@ -29,7 +29,6 @@ const elements = {
   btnExtract: document.getElementById('btn-extract'),
   
   loadingStatus: document.getElementById('loading-status'),
-  loadingTimer: document.getElementById('loading-timer'),
   
   resultsSidebar: document.getElementById('results-sidebar'),
   tabsContainer: document.getElementById('tabs-container'),
@@ -37,14 +36,11 @@ const elements = {
   
   resultFilename: document.getElementById('result-filename'),
   resultFilesize: document.getElementById('result-filesize'),
-  btnCopyJson: document.getElementById('btn-copy-json'),
-  btnDownloadJson: document.getElementById('btn-download-json'),
   btnDownloadCsv: document.getElementById('btn-download-csv'),
   
   extractedFieldsGrid: document.getElementById('extracted-fields-grid'),
   lineItemsContainer: document.getElementById('line-items-container'),
   lineItemsBody: document.getElementById('line-items-body'),
-  rawJsonOutput: document.getElementById('raw-json-output'),
   
   errorMessage: document.getElementById('error-message'),
   errorDetails: document.getElementById('error-details'),
@@ -187,8 +183,7 @@ function setupActionButtons() {
   });
 
   // Results Actions
-  elements.btnCopyJson.addEventListener('click', copyActiveJsonToClipboard);
-  elements.btnDownloadJson.addEventListener('click', downloadActiveJson);
+
   elements.btnDownloadCsv.addEventListener('click', downloadActiveCsv);
 }
 
@@ -302,14 +297,6 @@ window.removeFile = removeFile;
 // 4. Loading States & Webhook Fetching
 function startExtractionProcess() {
   switchView(elements.viewLoading);
-  
-  // Reset Timer
-  startTime = Date.now();
-  elements.loadingTimer.textContent = '0.0s';
-  timerInterval = setInterval(() => {
-    const elapsed = (Date.now() - startTime) / 1000;
-    elements.loadingTimer.textContent = elapsed.toFixed(1) + 's';
-  }, 100);
 
   // Status message rotator
   let messageIndex = 0;
@@ -617,9 +604,6 @@ function renderActiveResult() {
   elements.resultFilename.title = item.fileName;
   elements.resultFilesize.textContent = item.fileSize;
 
-  // Raw JSON Inspector
-  elements.rawJsonOutput.textContent = JSON.stringify(item.rawData, null, 2);
-
   // Key Value Grid
   const grid = elements.extractedFieldsGrid;
   grid.innerHTML = '';
@@ -718,45 +702,6 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
-}
-
-// 6. Data Export Actions
-function copyActiveJsonToClipboard() {
-  const item = AppState.extractedData[AppState.activeResultTab];
-  if (!item) return;
-
-  const jsonStr = JSON.stringify(item.rawData, null, 2);
-  navigator.clipboard.writeText(jsonStr)
-    .then(() => {
-      const originalText = elements.btnCopyJson.textContent;
-      elements.btnCopyJson.textContent = 'Copied!';
-      setTimeout(() => {
-        elements.btnCopyJson.textContent = originalText;
-      }, 2000);
-    })
-    .catch(err => {
-      alert('Failed to copy JSON: ' + err);
-    });
-}
-
-function downloadActiveJson() {
-  const item = AppState.extractedData[AppState.activeResultTab];
-  if (!item) return;
-
-  const jsonStr = JSON.stringify(item.rawData, null, 2);
-  const blob = new Blob([jsonStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  // Rename extension to .json
-  const originalName = item.fileName;
-  const baseName = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
-  a.download = `${baseName}_extracted.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
 
 function downloadActiveCsv() {

@@ -87,9 +87,6 @@
         </div>
         <h2 class="loading-title">Processing Invoices</h2>
         <p id="loading-status" class="loading-status">Uploading files...</p>
-        <div class="timer-container">
-          Time elapsed: <span id="loading-timer">0.0s</span>
-        </div>
       </div>
     </section>
 
@@ -120,8 +117,6 @@
               <span id="result-filesize" class="badge">124 KB</span>
             </div>
             <div class="results-actions">
-              <button id="btn-copy-json" class="btn btn-secondary btn-sm">Copy JSON</button>
-              <button id="btn-download-json" class="btn btn-secondary btn-sm">Download JSON</button>
               <button id="btn-download-csv" class="btn btn-secondary btn-sm">Download CSV</button>
             </div>
           </div>
@@ -179,13 +174,7 @@
             </div>
           </div>
 
-          <!-- Raw Data Inspector -->
-          <div class="raw-data-section">
-            <details>
-              <summary>View Raw Extracted JSON</summary>
-              <pre><code id="raw-json-output">{}</code></pre>
-            </details>
-          </div>
+
         </main>
 
       </div>
