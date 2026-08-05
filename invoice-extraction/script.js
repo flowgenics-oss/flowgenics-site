@@ -319,92 +319,119 @@ function startExtractionProcess() {
     elements.loadingStatus.textContent = loadingMessages[messageIndex];
   }, 2500);
 
-  // Prepare Multipart Data
-  const formData = new FormData();
-  
-  // Append user metadata
-  formData.append('name', elements.inputName.value.trim());
-  formData.append('company', elements.inputCompany.value.trim());
-  formData.append('email', elements.inputEmail.value.trim());
+  // User metadata (shared across all requests)
+  const name = elements.inputName.value.trim();
+  const company = elements.inputCompany.value.trim();
+  const email = elements.inputEmail.value.trim();
 
-  AppState.selectedFiles.forEach((file) => {
-    // Append files under key 'file'
+  const totalFiles = AppState.selectedFiles.length;
+  let completedCount = 0;
+
+  // Fire one webhook call per file in parallel
+  const filePromises = AppState.selectedFiles.map((file, index) => {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('company', company);
+    formData.append('email', email);
     formData.append('file', file);
+
+    // Each file gets its own abort controller with a 5-minute timeout
+    const controller = new AbortController();
+    const TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    return fetch(WEBHOOK_URL, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal
+    })
+    .then(async response => {
+      clearTimeout(timeoutId);
+      const text = await response.text();
+      console.log(`[File ${index + 1}/${totalFiles}] "${file.name}" — Status: ${response.status}`);
+      console.log(`[File ${index + 1}/${totalFiles}] Body:`, text);
+
+      if (!text || text.trim().length === 0) {
+        throw new Error('Server returned an empty response.');
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Invalid JSON response: "${text.substring(0, 200)}"`);
+      }
+
+      if (!response.ok) {
+        const errorMsg = parseErrorFromPayload(data) || `Server responded with status ${response.status}`;
+        throw new Error(errorMsg);
+      }
+
+      const potentialError = parseErrorFromPayload(data);
+      if (potentialError) {
+        throw new Error(potentialError);
+      }
+
+      return { file, data };
+    })
+    .catch(error => {
+      clearTimeout(timeoutId);
+      console.error(`[File ${index + 1}/${totalFiles}] "${file.name}" failed:`, error);
+      throw { file, error };
+    })
+    .finally(() => {
+      completedCount++;
+      elements.loadingStatus.textContent = `Completed ${completedCount} of ${totalFiles} file${totalFiles > 1 ? 's' : ''}...`;
+    });
   });
 
-  // Abort controller with 5-minute timeout to allow n8n enough processing time
-  const controller = new AbortController();
-  const TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  // Wait for ALL requests to settle (succeed or fail)
+  Promise.allSettled(filePromises)
+    .then(results => {
+      stopLoadingProgress();
 
-  // Call Webhook
-  fetch(WEBHOOK_URL, {
-    method: 'POST',
-    body: formData,
-    signal: controller.signal
-  })
-  .then(async response => {
-    clearTimeout(timeoutId);
-    stopLoadingProgress();
+      const successes = results.filter(r => r.status === 'fulfilled').map(r => r.value);
+      const failures = results.filter(r => r.status === 'rejected').map(r => r.reason);
 
-    // Always read body as text first to avoid crashing on empty responses
-    const text = await response.text();
-    console.log('Webhook response status:', response.status);
-    console.log('Webhook response body:', text);
+      console.log(`Extraction complete: ${successes.length} succeeded, ${failures.length} failed`);
 
-    if (!text || text.trim().length === 0) {
-      displayError(
-        'The server returned an empty response.',
-        `Status: ${response.status}\n\nThe n8n workflow may not be sending data back through the "Respond to Webhook" node, or the request is being intercepted before reaching n8n.`
-      );
-      return;
-    }
+      if (successes.length === 0) {
+        // All files failed
+        const failureDetails = failures.map(f => {
+          const fileName = f.file ? f.file.name : 'Unknown file';
+          const errMsg = f.error ? (f.error.message || f.error) : 'Unknown error';
+          return `• ${fileName}: ${errMsg}`;
+        }).join('\n');
 
-    let responseData = null;
-    try {
-      responseData = JSON.parse(text);
-    } catch (e) {
-      displayError(
-        'The server returned an invalid response.',
-        `Status: ${response.status}\nBody: "${text.substring(0, 300)}"\n\nExpected JSON but could not parse the response.`
-      );
-      return;
-    }
+        displayError(
+          'All files failed to process.',
+          failureDetails
+        );
+        return;
+      }
 
-    if (!response.ok) {
-      // If error payload is present
-      const errorMsg = parseErrorFromPayload(responseData) || `Server responded with status ${response.status}`;
-      displayError(errorMsg, JSON.stringify(responseData, null, 2));
-      return;
-    }
+      // Build the combined response for handleExtractionSuccess
+      // Normalize each file's response into the finishedSet format
+      const combinedResults = successes.map(s => {
+        const responseData = s.data;
+        // Handle n8n response formats: direct object, array, or { json: ... }
+        if (Array.isArray(responseData)) {
+          // Take the first item if array
+          const item = responseData[0];
+          return item && item.json ? item.json : item;
+        }
+        return responseData.json ? responseData.json : responseData;
+      });
 
-    // Check if the successful status code returned a webhook error representation
-    const potentialError = parseErrorFromPayload(responseData);
-    if (potentialError) {
-      displayError(potentialError, JSON.stringify(responseData, null, 2));
-      return;
-    }
+      // If some files failed, log warnings
+      if (failures.length > 0) {
+        const failedNames = failures.map(f => f.file ? f.file.name : 'Unknown').join(', ');
+        console.warn(`Some files failed: ${failedNames}`);
+      }
 
-    // Process and display results
-    handleExtractionSuccess(responseData);
-  })
-  .catch(error => {
-    clearTimeout(timeoutId);
-    stopLoadingProgress();
-    console.error('Error during extraction request:', error);
-
-    if (error.name === 'AbortError') {
-      displayError(
-        'Request timed out.',
-        'The extraction is taking longer than 5 minutes. This may happen with large or complex invoices.\n\nPlease try again with fewer files, or contact support if the issue persists.'
-      );
-    } else {
-      displayError(
-        'Failed to connect to the extraction service.', 
-        `${error.message}\n\nThis is likely a server timeout — the invoice processing took too long and the connection was closed.\n\nTry again with fewer or smaller files. If the problem persists, the server timeout may need to be increased.`
-      );
-    }
-  });
+      // Pass combined results as an array wrapped in finishedSet format
+      handleExtractionSuccess([{ json: { finishedSet: combinedResults } }]);
+    });
 }
 
 function stopLoadingProgress() {
