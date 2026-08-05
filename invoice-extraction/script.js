@@ -346,18 +346,29 @@ function startExtractionProcess() {
   .then(async response => {
     clearTimeout(timeoutId);
     stopLoadingProgress();
-    const contentType = response.headers.get('content-type');
-    
+
+    // Always read body as text first to avoid crashing on empty responses
+    const text = await response.text();
+    console.log('Webhook response status:', response.status);
+    console.log('Webhook response body:', text);
+
+    if (!text || text.trim().length === 0) {
+      displayError(
+        'The server returned an empty response.',
+        `Status: ${response.status}\n\nThe n8n workflow may not be sending data back through the "Respond to Webhook" node, or the request is being intercepted before reaching n8n.`
+      );
+      return;
+    }
+
     let responseData = null;
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await response.json();
-    } else {
-      const text = await response.text();
-      try {
-        responseData = JSON.parse(text);
-      } catch (e) {
-        throw new Error(`Server returned non-JSON response: "${text.substring(0, 100)}..."`);
-      }
+    try {
+      responseData = JSON.parse(text);
+    } catch (e) {
+      displayError(
+        'The server returned an invalid response.',
+        `Status: ${response.status}\nBody: "${text.substring(0, 300)}"\n\nExpected JSON but could not parse the response.`
+      );
+      return;
     }
 
     if (!response.ok) {
